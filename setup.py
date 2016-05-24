@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
+from numpy.distutils.core import setup, Extension, find_packages
 import subprocess
-from setuptools import setup, find_packages
+# from setuptools import setup, find_packages
 import os
 
 
@@ -40,12 +41,31 @@ def getVersion(version, release=True):
     else:
         return version + '-dev.' + _git_version
 
-setup(name='pymks',
-      version=getVersion('0.3.1', release=False),
-      description='Materials Knowledge Systems in Python (PyMKS)',
-      author='David Brough, Daniel Wheeler',
-      author_email='david.brough.0416@gmail.com',
-      url='http://pymks.org',
+wrapper = Extension('my_wrapper', sources=['my_wrapper.f90'], libraries=['my_module'])
+
+setup(
+    libraries = [('my_module', dict(sources=['my_module.f90'],
+                                    extra_f90_compile_args=["-ffixed-form"]))],
+    ext_modules = [wrapper]
+)
+
+# extension = Extension('wrapper_interface',
+#                       sources=['pyopencalphad/fortran/liboctqpy.f90'],
+#                       libraries=['pyopencalphad/fortr/liboctq.o', '../oc/liboceq.a']
+
+liboctq = ('liboctq',
+           dict(sources=['pyopencalphad/fortran/liboctq.f90'],
+                extra_args=["-fPIC"]))
+                      p
+setup(name='pyopencalphad',
+      version=getVersion('0.1', release=False),
+      description='Python interface for OpenCalphad',
+      author='Shengyen Li, Daniel Wheeler',
+      author_email='shengyen.li@nist.gov',
+      url='https://github.com/usnistgov/pyopencalphad',
       packages=find_packages(),
       package_data={'': ['tests/*.py']},
+      libraries=Extension('wrapper', {'sources' : ['pyopencalphad/wrapper.py'],
+                                      'libraries' : ['wrapper']}),
+
       )
